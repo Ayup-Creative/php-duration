@@ -1,0 +1,25 @@
+<?php
+declare(strict_types=1);
+
+namespace AyupCreative\Duration\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use AyupCreative\Duration\DurationImmutable;
+use InvalidArgumentException;
+
+final class DurationImmutableCast implements CastsAttributes
+{
+    public function get($model, string $key, $value, array $attributes): DurationImmutable
+    {
+        return DurationImmutable::minutes((int) $value);
+    }
+
+    public function set($model, string $key, $value, array $attributes): int
+    {
+        return match (true) {
+            $value instanceof DurationImmutable => $value->totalMinutes,
+            is_int($value) => $value,
+            default => throw new InvalidArgumentException('Invalid duration value'),
+        };
+    }
+}

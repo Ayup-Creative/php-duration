@@ -1,0 +1,24 @@
+{
+    "name": "ayup-creative/duration",
+    "description": "Carbon-style mutable and immutable Duration value objects with Laravel support",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "AyupCreative\\Duration\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AyupCreative\\Duration\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "nesbot/carbon": "^3.0",
+        "illuminate/database": "^10.0|^11.0"
+    }
+}
