@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-use AyupCreative\Duration\Behaviour\DurationBehaviour;
+use AyupCreative\Duration\Features\DurationBehaviour;
 use Carbon\CarbonInterval;
 
 final class DurationImmutable implements \JsonSerializable

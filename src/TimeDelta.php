@@ -2,70 +2,57 @@
 
 namespace AyupCreative\Duration;
 
+use AyupCreative\Duration\Features\Arithmetic;
+use AyupCreative\Duration\Features\Builders;
+use AyupCreative\Duration\Features\Formatting;
+use AyupCreative\Duration\Features\TemporalUnits;
+
 /**
  * @property int $totalMinutes
  */
 final class TimeDelta
 {
-    private int $minutes;
+    use Arithmetic;
+    use Builders;
+    use Formatting;
+    use TemporalUnits;
+
+    private int $totalMinutes;
 
     private function __construct(int $minutes)
     {
-        $this->minutes = $minutes;
-    }
-
-    public static function minutes(int $minutes): self
-    {
-        return new self($minutes);
-    }
-
-    public function totalMinutes(): int
-    {
-        return $this->minutes;
+        $this->totalMinutes = $minutes;
     }
 
     public function isPositive(): bool
     {
-        return $this->minutes > 0;
+        return $this->totalMinutes > 0;
     }
 
     public function isNegative(): bool
     {
-        return $this->minutes < 0;
+        return $this->totalMinutes < 0;
     }
 
     public function invert(): self
     {
-        return new self(-$this->minutes);
+        return new self(-$this->totalMinutes);
     }
 
     public function sign(): int
     {
-        return $this->minutes <=> 0;
+        return $this->totalMinutes <=> 0;
     }
 
     public function absolute(): DurationImmutable
     {
-        return DurationImmutable::minutes(abs($this->minutes));
-    }
-
-    public function __toString(): string
-    {
-        $sign = $this->minutes < 0 ? '-' : '';
-        $m = abs($this->minutes);
-
-        return sprintf(
-            '%s%d:%02d',
-            $sign,
-            intdiv($m, 60),
-            $m % 60
-        );
+        return DurationImmutable::minutes(abs($this->totalMinutes));
     }
 
     public function __get($name)
     {
         if($name === 'totalMinutes') {
-            return $this->minutes;
+            return $this->totalMinutes;
         }
 
         throw new \Error('Undefined property: ' . static::class . '::' . $name);
