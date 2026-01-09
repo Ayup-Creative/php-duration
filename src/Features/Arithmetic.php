@@ -41,14 +41,44 @@ trait Arithmetic
         return $this->totalMinutes < $other->totalMinutes;
     }
 
+    public function isLessThan(self $other): bool
+    {
+        return $this->isBelow($other);
+    }
+
+    public function isGreaterThan(self $other): bool
+    {
+        return $this->isOver($other);
+    }
+
+    public function isLessThanOrEqualTo(self $other): bool
+    {
+        return $this->isBelow($other) || $this->equals($other);
+    }
+
+    public function isGreaterThanOrEqualTo(self $other): bool
+    {
+        return $this->isOver($other) || $this->equals($other);
+    }
+
     public function equals(self $other): bool
     {
         return $this->totalMinutes === $other->totalMinutes;
     }
 
+    public function doesNotEqual(self $other): bool
+    {
+        return !$this->equals($other);
+    }
+
     public function isZero(): bool
     {
         return $this->totalMinutes === 0;
+    }
+
+    public function isNotZero(): bool
+    {
+        return $this->totalMinutes !== 0;
     }
 
     public function max(self $other): self

@@ -120,6 +120,50 @@ class DurationImmutableTest extends TestCase
         $this->assertFalse($b->isBelow($a));
     }
 
+    public function testIsLessThan(): void
+    {
+        $a = DurationImmutable::minutes(15);
+        $b = DurationImmutable::minutes(30);
+
+        $this->assertTrue($a->isLessThan($b));
+        $this->assertFalse($b->isLessThan($a));
+    }
+
+    public function testIsGreaterThan(): void
+    {
+        $a = DurationImmutable::minutes(30);
+        $b = DurationImmutable::minutes(15);
+
+        $this->assertTrue($a->isGreaterThan($b));
+        $this->assertFalse($b->isGreaterThan($a));
+    }
+
+    public function testIsLessThanOrEqualTo(): void
+    {
+        $a = DurationImmutable::minutes(15);
+        $b = DurationImmutable::minutes(15);
+        $c = DurationImmutable::minutes(30);
+
+        $this->assertTrue($a->isLessThanOrEqualTo($b));
+        $this->assertTrue($b->isLessThanOrEqualTo($a));
+
+        $this->assertTrue($a->isLessThanOrEqualTo($c));
+        $this->assertFalse($c->isLessThanOrEqualTo($a));
+    }
+
+    public function testIsGreaterThanOrEqualTo(): void
+    {
+        $a = DurationImmutable::minutes(15);
+        $b = DurationImmutable::minutes(15);
+        $c = DurationImmutable::minutes(30);
+
+        $this->assertTrue($a->isGreaterThanOrEqualTo($b));
+        $this->assertTrue($b->isGreaterThanOrEqualTo($a));
+
+        $this->assertFalse($a->isGreaterThanOrEqualTo($c));
+        $this->assertTrue($c->isGreaterThanOrEqualTo($a));
+    }
+
     public function testArithmeticEquals(): void
     {
         $a = DurationImmutable::minutes(15);
@@ -133,6 +177,19 @@ class DurationImmutableTest extends TestCase
         $this->assertTrue($a->equals($b));
     }
 
+    public function testArithmeticDoesNotEqual(): void
+    {
+        $a = DurationImmutable::minutes(15);
+        $b = DurationImmutable::hours(1);
+
+        $this->assertTrue($a->doesNotEqual($b));
+
+        $a = DurationImmutable::hours(1);
+        $b = DurationImmutable::hours(1);
+
+        $this->assertFalse($b->doesNotEqual($a));
+    }
+
     public function testArithmeticIsZero(): void
     {
         $a = DurationImmutable::minutes(15);
@@ -142,6 +199,17 @@ class DurationImmutableTest extends TestCase
         $this->assertFalse($a->isZero());
         $this->assertTrue($b->isZero());
         $this->assertTrue($c->isZero());
+    }
+
+    public function testArithmeticIsNotZero(): void
+    {
+        $a = DurationImmutable::minutes(15);
+        $b = DurationImmutable::hours(1);
+        $c = DurationImmutable::zero();
+
+        $this->assertTrue($a->isNotZero());
+        $this->assertTrue($b->isNotZero());
+        $this->assertFalse($c->isNotZero());
     }
 
     public function testArithmeticMax(): void

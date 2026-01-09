@@ -115,6 +115,50 @@ class DurationTest extends TestCase
         $this->assertFalse($b->isBelow($a));
     }
 
+    public function testIsLessThan(): void
+    {
+        $a = Duration::minutes(15);
+        $b = Duration::minutes(30);
+
+        $this->assertTrue($a->isLessThan($b));
+        $this->assertFalse($b->isLessThan($a));
+    }
+
+    public function testIsGreaterThan(): void
+    {
+        $a = Duration::minutes(30);
+        $b = Duration::minutes(15);
+
+        $this->assertTrue($a->isGreaterThan($b));
+        $this->assertFalse($b->isGreaterThan($a));
+    }
+
+    public function testIsLessThanOrEqualTo(): void
+    {
+        $a = Duration::minutes(15);
+        $b = Duration::minutes(15);
+        $c = Duration::minutes(30);
+
+        $this->assertTrue($a->isLessThanOrEqualTo($b));
+        $this->assertTrue($b->isLessThanOrEqualTo($a));
+
+        $this->assertTrue($a->isLessThanOrEqualTo($c));
+        $this->assertFalse($c->isLessThanOrEqualTo($a));
+    }
+
+    public function testIsGreaterThanOrEqualTo(): void
+    {
+        $a = Duration::minutes(15);
+        $b = Duration::minutes(15);
+        $c = Duration::minutes(30);
+
+        $this->assertTrue($a->isGreaterThanOrEqualTo($b));
+        $this->assertTrue($b->isGreaterThanOrEqualTo($a));
+
+        $this->assertFalse($a->isGreaterThanOrEqualTo($c));
+        $this->assertTrue($c->isGreaterThanOrEqualTo($a));
+    }
+
     public function testArithmeticEquals(): void
     {
         $a = Duration::minutes(15);
@@ -128,6 +172,19 @@ class DurationTest extends TestCase
         $this->assertTrue($a->equals($b));
     }
 
+    public function testArithmeticDoesNotEqual(): void
+    {
+        $a = Duration::minutes(15);
+        $b = Duration::hours(1);
+
+        $this->assertTrue($a->doesNotEqual($b));
+
+        $a = Duration::hours(1);
+        $b = Duration::hours(1);
+
+        $this->assertFalse($b->doesNotEqual($a));
+    }
+
     public function testArithmeticIsZero(): void
     {
         $a = Duration::minutes(15);
@@ -137,6 +194,17 @@ class DurationTest extends TestCase
         $this->assertFalse($a->isZero());
         $this->assertTrue($b->isZero());
         $this->assertTrue($c->isZero());
+    }
+
+    public function testArithmeticIsNotZero(): void
+    {
+        $a = Duration::minutes(15);
+        $b = Duration::hours(1);
+        $c = Duration::zero();
+
+        $this->assertTrue($a->isNotZero());
+        $this->assertTrue($b->isNotZero());
+        $this->assertFalse($c->isNotZero());
     }
 
     public function testArithmeticMax(): void

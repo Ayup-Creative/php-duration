@@ -122,6 +122,50 @@ class TimeDeltaTest extends TestCase
         $this->assertTrue($a->isBelow($b));
     }
 
+    public function testIsLessThan(): void
+    {
+        $a = TimeDelta::minutes(15);
+        $b = TimeDelta::minutes(30);
+
+        $this->assertTrue($a->isLessThan($b));
+        $this->assertFalse($b->isLessThan($a));
+    }
+
+    public function testIsGreaterThan(): void
+    {
+        $a = TimeDelta::minutes(30);
+        $b = TimeDelta::minutes(15);
+
+        $this->assertTrue($a->isGreaterThan($b));
+        $this->assertFalse($b->isGreaterThan($a));
+    }
+
+    public function testIsLessThanOrEqualTo(): void
+    {
+        $a = TimeDelta::minutes(15);
+        $b = TimeDelta::minutes(15);
+        $c = TimeDelta::minutes(30);
+
+        $this->assertTrue($a->isLessThanOrEqualTo($b));
+        $this->assertTrue($b->isLessThanOrEqualTo($a));
+
+        $this->assertTrue($a->isLessThanOrEqualTo($c));
+        $this->assertFalse($c->isLessThanOrEqualTo($a));
+    }
+
+    public function testIsGreaterThanOrEqualTo(): void
+    {
+        $a = TimeDelta::minutes(15);
+        $b = TimeDelta::minutes(15);
+        $c = TimeDelta::minutes(30);
+
+        $this->assertTrue($a->isGreaterThanOrEqualTo($b));
+        $this->assertTrue($b->isGreaterThanOrEqualTo($a));
+
+        $this->assertFalse($a->isGreaterThanOrEqualTo($c));
+        $this->assertTrue($c->isGreaterThanOrEqualTo($a));
+    }
+
     public function testArithmeticEquals(): void
     {
         $this->assertTrue(TimeDelta::minutes(15)->equals(TimeDelta::minutes(15)));
@@ -131,11 +175,31 @@ class TimeDeltaTest extends TestCase
         $this->assertFalse(TimeDelta::minutes(60)->equals(TimeDelta::hours(2)));
     }
 
+    public function testArithmeticDoesNotEqual(): void
+    {
+        $a = TimeDelta::minutes(15);
+        $b = TimeDelta::hours(1);
+
+        $this->assertTrue($a->doesNotEqual($b));
+
+        $a = TimeDelta::hours(1);
+        $b = TimeDelta::hours(1);
+
+        $this->assertFalse($b->doesNotEqual($a));
+    }
+
     public function testArithmeticIsZero(): void
     {
         $this->assertTrue(TimeDelta::zero()->isZero());
         $this->assertTrue(TimeDelta::minutes(0)->isZero());
         $this->assertFalse(TimeDelta::minutes(1)->isZero());
+    }
+
+    public function testArithmeticIsNotZero(): void
+    {
+        $this->assertTrue(TimeDelta::minutes(1)->isNotZero());
+        $this->assertTrue(TimeDelta::hours(1)->isNotZero());
+        $this->assertFalse(TimeDelta::zero()->isNotZero());
     }
 
     public function testArithmeticMax(): void
