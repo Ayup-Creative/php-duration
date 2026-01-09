@@ -17,11 +17,17 @@ final class DurationImmutableCast implements CastsAttributes
 
     public function set($model, string $key, $value, array $attributes): int
     {
+        $debug = match(true) {
+            is_scalar($value) => $value,
+            is_object($value) => get_class($value),
+            default => 'unknown',
+        };
+
         return match (true) {
             $value instanceof DurationImmutable => $value->totalMinutes,
             $value instanceof TimeDelta => $value->absolute()->totalMinutes,
             is_int($value) => $value,
-            default => throw new InvalidArgumentException('Invalid duration value'),
+            default => throw new InvalidArgumentException('Invalid duration value ['.$debug.']'),
         };
     }
 }
