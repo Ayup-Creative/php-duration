@@ -4,6 +4,25 @@ namespace AyupCreative\Duration\Features;
 
 trait Formatting
 {
+    /**
+     * Format the duration using a format string.
+     *
+     * Available tokens:
+     * *   : Sign (+ or -)
+     * dd  : Days (padded to 2 digits)
+     * d   : Days
+     * hh  : Hours (padded to 2 digits)
+     * h   : Hours
+     * mm  : Minutes (padded to 2 digits)
+     * m   : Minutes
+     * ss  : Seconds (padded to 2 digits)
+     * s   : Seconds
+     *
+     * Usage: $duration->format('dd:hh:mm:ss');
+     *
+     * @param string $format
+     * @return string
+     */
     public function format(string $format): string
     {
         $parts = $this->decompose();
@@ -21,6 +40,14 @@ trait Formatting
         ]);
     }
 
+    /**
+     * Get a human-readable representation of the duration.
+     *
+     * Usage: $duration->toHuman(); // "1 day 2 hours"
+     *
+     * @param callable|null $formatter Custom formatter function
+     * @return string
+     */
     public function toHuman(?callable $formatter = null): string {
         $parts = $this->decompose();
 
@@ -31,6 +58,14 @@ trait Formatting
         return $this->defaultHuman($parts);
     }
 
+    /**
+     * Get a short human-readable representation of the duration.
+     *
+     * Usage: $duration->toShortHuman(); // "1d 2h 3m"
+     *
+     * @param callable|null $formatter Custom formatter function
+     * @return string
+     */
     public function toShortHuman(?callable $formatter = null): string
     {
         // Default short formatter
@@ -64,11 +99,22 @@ trait Formatting
         return $this->toHuman($formatter);
     }
 
+    /**
+     * Convert the duration to a string (hh:mm).
+     *
+     * @return string
+     */
     public function __toString(): string
     {
         return $this->format('*hh:mm');
     }
 
+    /**
+     * Default human-readable formatter.
+     *
+     * @param array $parts
+     * @return string
+     */
     private function defaultHuman(array $parts): string
     {
         if (abs($this->totalSeconds) < self::SECONDS_PER_MINUTE) {
@@ -100,6 +146,13 @@ trait Formatting
         );
     }
 
+    /**
+     * Pluralize a label based on a value.
+     *
+     * @param int $value
+     * @param string $label
+     * @return string
+     */
     private function pluralize(int $value, string $label): string
     {
         return $value === 1 ? $label : $label . 's';

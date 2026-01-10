@@ -11,8 +11,26 @@ use InvalidArgumentException;
 
 abstract class DurationCast implements CastsAttributes
 {
+    /**
+     * Get the name of the method used to create the duration instance.
+     *
+     * @return string
+     */
     abstract protected function getUnitsMethod(): string;
 
+    /**
+     * Cast the given value to a DurationImmutable instance.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param string $key
+     * @param mixed $value
+     * @param array $attributes
+     * @return \AyupCreative\Duration\DurationImmutable|null
+     * @throws \InvalidArgumentException
+     * @see \AyupCreative\Duration\Tests\Casts\Cast::test_cast_with_int()
+     * @see \AyupCreative\Duration\Tests\Casts\Cast::test_cast_with_numeric_string()
+     * @see \AyupCreative\Duration\Tests\Casts\Cast::test_cast_with_null()
+     */
     public function get($model, string $key, $value, array $attributes): ?DurationImmutable
     {
         if (is_null($value)) {
@@ -26,6 +44,18 @@ abstract class DurationCast implements CastsAttributes
         return DurationImmutable::{$this->getUnitsMethod()}((int) $value);
     }
 
+    /**
+     * Prepare the given value for storage.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param string $key
+     * @param mixed $value
+     * @param array $attributes
+     * @return int|null
+     * @throws \InvalidArgumentException
+     * @see \AyupCreative\Duration\Tests\Casts\Cast::test_cast_with_duration()
+     * @see \AyupCreative\Duration\Tests\Casts\Cast::test_cast_with_time_delta()
+     */
     public function set($model, string $key, $value, array $attributes): ?int
     {
         if (is_null($value)) {

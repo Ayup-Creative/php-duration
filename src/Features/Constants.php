@@ -11,6 +11,11 @@ trait Constants
     public const SECONDS_PER_MONTH = 2629800; // 30.44 days
     public const SECONDS_PER_YEAR  = 31557600; // 365.25 days
 
+    /**
+     * Decompose the duration into days, hours, minutes, and seconds.
+     *
+     * @return array{days: int, hours: int, minutes: int, seconds: int, sign: string}
+     */
     private function decompose(): array
     {
         $seconds = abs($this->totalSeconds);

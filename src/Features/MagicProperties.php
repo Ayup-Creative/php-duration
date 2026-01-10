@@ -12,6 +12,13 @@ namespace AyupCreative\Duration\Features;
  */
 trait MagicProperties
 {
+    /**
+     * Magic getter for total units.
+     *
+     * @param string $name
+     * @return mixed
+     * @throws \Error
+     */
     public function __get($name)
     {
         if($name === 'totalSeconds') {
@@ -45,6 +52,14 @@ trait MagicProperties
         throw new \Error('Undefined property: ' . self::class . '::' . $name);
     }
 
+    /**
+     * Magic setter to prevent setting properties.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     * @throws \Error
+     */
     public function __set($name, $value)
     {
         throw new \Error('Cannot set property: ' . self::class . '::' . $name);

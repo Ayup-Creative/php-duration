@@ -16,11 +16,24 @@ final class DurationImmutable implements \JsonSerializable
 
     protected int $totalSeconds;
 
+    /**
+     * Create a new DurationImmutable instance.
+     *
+     * @param int $seconds
+     * @see \AyupCreative\Duration\Tests\DurationImmutableTest::it_can_be_instantiated_with_seconds()
+     */
     public function __construct(int $seconds)
     {
         $this->totalSeconds = max(0, $seconds);
     }
 
+    /**
+     * Convert the duration to a mutable instance.
+     *
+     * Usage: $mutable = $duration->toMutable();
+     *
+     * @return \AyupCreative\Duration\Duration
+     */
     public function toMutable(): Duration
     {
         return Duration::seconds($this->totalSeconds);
