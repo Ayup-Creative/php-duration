@@ -1,40 +1,75 @@
 <?php
+
 declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-use AyupCreative\Duration\Features\DurationBehaviour;
-
 final class Duration implements \JsonSerializable
 {
-    use DurationBehaviour;
+    use Features\Arithmetic;
+    use Features\Builders;
+    use Features\Constants;
+    use Features\Conversion;
+    use Features\Formatting;
+    use Features\MagicProperties;
+    use Features\TemporalUnits;
+
+    protected int $totalSeconds;
+
+    public function __construct(int $seconds)
+    {
+        $this->totalSeconds = max(0, $seconds);
+    }
 
     public function add(DurationImmutable|self $other): self
     {
-        $this->totalMinutes += $other->totalMinutes;
+        $seconds = $this->totalSeconds + $other->totalSeconds;
+
+        $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
     }
 
     public function sub(DurationImmutable|self $other): self
     {
-        $this->totalMinutes = max(0, $this->totalMinutes - $other->totalMinutes);
+        $seconds = $this->totalSeconds - $other->totalSeconds;
+
+        $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
     }
 
     public function multiply(float $factor): self
     {
-        $this->totalMinutes = (int) round($this->totalMinutes * $factor);
+        $seconds = (int)round($this->totalSeconds * $factor);
+
+        $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
     }
 
-    public function ceilTo(int $interval): self
+    public function ceilTo(int $seconds): self
     {
-        $this->totalMinutes = (int) (ceil($this->totalMinutes / $interval) * $interval);
+        $seconds = (int)(ceil($this->totalSeconds / $seconds) * $seconds);
+
+        $this->totalSeconds = (new self($seconds))->totalSeconds;;
         return $this;
+    }
+
+    public function ceilToMinutes(int $minutes): self
+    {
+        return $this->ceilTo($minutes * self::SECONDS_PER_MINUTE);
+    }
+
+    public function ceilToHours(int $hours): self
+    {
+        return $this->ceilTo($hours * self::SECONDS_PER_HOUR);
+    }
+
+    public function ceilToDays(int $days): self
+    {
+        return $this->ceilTo($days * self::SECONDS_PER_DAY);
     }
 
     public function toImmutable(): DurationImmutable
     {
-        return DurationImmutable::minutes($this->totalMinutes);
+        return DurationImmutable::seconds($this->totalSeconds);
     }
 }

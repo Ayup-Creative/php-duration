@@ -1,0 +1,52 @@
+<?php
+
+namespace AyupCreative\Duration\Features;
+
+/**
+ * @property int $totalSeconds
+ * @property float $totalMinutes
+ * @property int $totalHours
+ * @property int $totalDays
+ * @property int $totalMonths
+ * @property int $totalYears
+ */
+trait MagicProperties
+{
+    public function __get($name)
+    {
+        if($name === 'totalSeconds') {
+            return $this->totalSeconds();
+        }
+
+        if($name === 'totalMinutes') {
+            return $this->totalMinutes();
+        }
+
+        if($name === 'totalHours') {
+            return $this->totalHours();
+        }
+
+        if($name === 'totalDays') {
+            return $this->totalDays();
+        }
+
+        if($name === 'totalWeeks') {
+            return $this->totalWeeks();
+        }
+
+        if($name === 'totalMonths') {
+            return $this->totalMonths();
+        }
+
+        if($name === 'totalYears') {
+            return $this->totalYears();
+        }
+
+        throw new \Error('Undefined property: ' . self::class . '::' . $name);
+    }
+
+    public function __set($name, $value)
+    {
+        throw new \Error('Cannot set property: ' . self::class . '::' . $name);
+    }
+}

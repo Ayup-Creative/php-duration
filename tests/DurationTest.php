@@ -4,337 +4,109 @@ namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\Duration;
 use AyupCreative\Duration\DurationImmutable;
-use Carbon\CarbonInterval;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Duration::class)]
+#[UsesClass(DurationImmutable::class)]
 class DurationTest extends TestCase
 {
-    public function testBuildFromZeroReturnsMutableDuration(): void
+    /** @test */
+    public function it_can_be_instantiated_with_seconds()
     {
-        $this->assertInstanceOf(Duration::class, Duration::zero());
+        $duration = new Duration(100);
+        $this->assertEquals(100, $duration->totalSeconds());
     }
 
-    public function testBuildFromMinutesReturnsMutableDuration(): void
+    /** @test */
+    public function it_is_mutable_on_arithmetic_operations()
     {
-        $this->assertInstanceOf(Duration::class, Duration::minutes(15));
+        $duration = Duration::seconds(100);
+        $other = Duration::seconds(50);
+
+        $result = $duration->add($other);
+        $this->assertSame($duration, $result);
+        $this->assertEquals(150, $duration->totalSeconds());
+
+        $result = $duration->sub($other);
+        $this->assertSame($duration, $result);
+        $this->assertEquals(100, $duration->totalSeconds());
+
+        $result = $duration->multiply(2);
+        $this->assertSame($duration, $result);
+        $this->assertEquals(200, $duration->totalSeconds());
     }
 
-    public function testBuildFromHoursReturnsMutableDuration(): void
+    /** @test */
+    public function it_cannot_go_negative_through_subtraction()
     {
-        $this->assertInstanceOf(Duration::class, Duration::hours(1));
+        $duration = Duration::seconds(100);
+        $other = Duration::seconds(150);
+
+        $duration->sub($other);
+        $this->assertEquals(0, $duration->totalSeconds());
     }
 
-    public function testBuildFromHoursAndMinutesReturnsMutableDuration(): void
+    /** @test */
+    public function it_can_ceil_durations()
     {
-        $this->assertInstanceOf(Duration::class, Duration::hoursAndMinutes(1, 15));
+        $duration = Duration::seconds(65); // 1m 5s
+
+        $duration->ceilToMinutes(1);
+        $this->assertEquals(120, $duration->totalSeconds());
+
+        $duration = Duration::seconds(65);
+        $duration->ceilTo(30);
+        $this->assertEquals(90, $duration->totalSeconds());
+
+        $duration = Duration::hours(1)->add(Duration::minutes(5)); // 1h 5m
+        $duration->ceilToHours(1);
+        $this->assertEquals(7200, $duration->totalSeconds()); // 2h
+
+        $duration = Duration::days(1)->add(Duration::hours(5)); // 1d 5h
+        $duration->ceilToDays(1);
+        $this->assertEquals(172800, $duration->totalSeconds()); // 2d
     }
 
-    public function testBuildFromFromCarbonReturnsMutableDuration(): void
+    /** @test */
+    public function it_can_be_converted_to_immutable()
     {
-        $carbon = CarbonInterval::minutes(30);
-
-        $this->assertInstanceOf(Duration::class, Duration::fromCarbon($carbon));
+        $mutable = Duration::seconds(100);
+        $immutable = $mutable->toImmutable();
+        $this->assertInstanceOf(DurationImmutable::class, $immutable);
+        $this->assertEquals(100, $immutable->totalSeconds());
     }
 
-    public function testMutability(): void
+    /** @test */
+    public function it_supports_additional_temporal_units()
     {
-        $d = Duration::minutes(30);
-        $d->add(Duration::minutes(15));
+        $duration = Duration::make(1, 2, 3, 4);
 
-        $this->assertSame(45, $d->totalMinutes);
+        $this->assertEquals(1, $duration->totalDays());
+        $this->assertEquals(26, $duration->totalHours());
+        $this->assertEquals(1563, $duration->totalMinutes());
+        $this->assertEquals(93784, $duration->totalSeconds());
+        
+        $this->assertEquals(0, $duration->totalWeeks());
+        $this->assertEquals(0, $duration->totalMonths());
+        $this->assertEquals(0, $duration->totalYears());
+
+        $this->assertEquals(2, $duration->getHours());
+        $this->assertEquals(3, $duration->getMinutes());
+        $this->assertEquals(4, $duration->getSeconds());
     }
 
-    public function testArithmeticAdd(): void
+    /** @test */
+    public function it_supports_magic_properties()
     {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $a->add($b);
-
-        $this->assertSame(75, $a->totalMinutes);
-        $this->assertSame(60, $b->totalMinutes);
-    }
-
-    public function testArithmeticSub(): void
-    {
-        $a = Duration::hours(1);
-        $b = Duration::minutes(15);
-
-        $a->sub($b);
-
-        $this->assertSame(45, $a->totalMinutes);
-        $this->assertSame(15, $b->totalMinutes);
-    }
-
-    public function testArithmeticSubNeverGoesNegative(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $a->sub($b);
-
-        $this->assertSame(0, $a->totalMinutes);
-        $this->assertSame(60, $b->totalMinutes);
-    }
-
-    public function testArithmeticMultiply(): void
-    {
-        $a = Duration::minutes(15);
-        $a->multiply(2);
-
-        $this->assertSame(30, $a->totalMinutes);
-    }
-
-    public function testArithmeticCeilTo(): void
-    {
-        $a = Duration::minutes(10);
-        $a->ceilTo(15);
-
-        $b = Duration::hours(2);
-        $b->ceilTo(300);
-
-        $this->assertSame(15, $a->totalMinutes);
-        $this->assertSame(300, $b->totalMinutes);
-    }
-
-    public function testArithmeticIsOver(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $this->assertFalse($a->isOver($b));
-        $this->assertTrue($b->isOver($a));
-    }
-
-    public function testArithmeticIsBelow(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $this->assertTrue($a->isBelow($b));
-        $this->assertFalse($b->isBelow($a));
-    }
-
-    public function testIsLessThan(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::minutes(30);
-
-        $this->assertTrue($a->isLessThan($b));
-        $this->assertFalse($b->isLessThan($a));
-    }
-
-    public function testIsGreaterThan(): void
-    {
-        $a = Duration::minutes(30);
-        $b = Duration::minutes(15);
-
-        $this->assertTrue($a->isGreaterThan($b));
-        $this->assertFalse($b->isGreaterThan($a));
-    }
-
-    public function testIsLessThanOrEqualTo(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::minutes(15);
-        $c = Duration::minutes(30);
-
-        $this->assertTrue($a->isLessThanOrEqualTo($b));
-        $this->assertTrue($b->isLessThanOrEqualTo($a));
-
-        $this->assertTrue($a->isLessThanOrEqualTo($c));
-        $this->assertFalse($c->isLessThanOrEqualTo($a));
-    }
-
-    public function testIsGreaterThanOrEqualTo(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::minutes(15);
-        $c = Duration::minutes(30);
-
-        $this->assertTrue($a->isGreaterThanOrEqualTo($b));
-        $this->assertTrue($b->isGreaterThanOrEqualTo($a));
-
-        $this->assertFalse($a->isGreaterThanOrEqualTo($c));
-        $this->assertTrue($c->isGreaterThanOrEqualTo($a));
-    }
-
-    public function testArithmeticEquals(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $this->assertFalse($b->equals($a));
-
-        $a = Duration::hours(1);
-        $b = Duration::hours(1);
-
-        $this->assertTrue($a->equals($b));
-    }
-
-    public function testArithmeticDoesNotEqual(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $this->assertTrue($a->doesNotEqual($b));
-
-        $a = Duration::hours(1);
-        $b = Duration::hours(1);
-
-        $this->assertFalse($b->doesNotEqual($a));
-    }
-
-    public function testArithmeticIsZero(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(0);
-        $c = Duration::zero();
-
-        $this->assertFalse($a->isZero());
-        $this->assertTrue($b->isZero());
-        $this->assertTrue($c->isZero());
-    }
-
-    public function testArithmeticIsNotZero(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-        $c = Duration::zero();
-
-        $this->assertTrue($a->isNotZero());
-        $this->assertTrue($b->isNotZero());
-        $this->assertFalse($c->isNotZero());
-    }
-
-    public function testArithmeticMax(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $c = $a->max($b);
-
-        $this->assertSame($b, $c);
-        $this->assertNotSame($a, $c);
-        $this->assertNotSame($a, $b);
-    }
-
-    public function testArithmeticMin(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $c = $a->min($b);
-
-        $this->assertSame($a, $c);
-        $this->assertNotSame($b, $c);
-        $this->assertNotSame($a, $b);
-    }
-
-    public function testArithmeticDiffReturnsTimeDelta(): void
-    {
-        $a = Duration::minutes(15);
-        $b = Duration::hours(1);
-
-        $d1 = $a->diff($b);
-        $this->assertInstanceOf(\AyupCreative\Duration\TimeDelta::class, $d1);
-    }
-
-    public function testArithmeticDiffReturnsNegativeDeltaWhenSmaller(): void
-    {
-        $a = Duration::minutes(45);
-        $b = Duration::hours(1);
-
-        $d1 = $a->diff($b);
-        $this->assertSame(-15, $d1->totalMinutes);
-    }
-
-    public function testArithmeticDiffReturnsPositiveDeltaWhenLarger(): void
-    {
-        $a = Duration::hours(1);
-        $b = Duration::minutes(45);
-
-        $d1 = $a->diff($b);
-        $this->assertSame(15, $d1->totalMinutes);
-    }
-
-    public function testArithmeticDiffReturnsZeroDeltaWhenEqual(): void
-    {
-        $a = Duration::hours(1);
-        $b = Duration::hours(1);
-
-        $d1 = $a->diff($b);
-        $this->assertSame(0, $d1->totalMinutes);
-    }
-
-    public function testFormattingFormat(): void
-    {
-        $a = Duration::minutes(15);
-
-        $this->assertSame('00:15', $a->format('hh:mm'));
-        $this->assertSame('0:15', $a->format('h:mm'));
-        $this->assertSame('15', $a->format('mm'));
-
-        $b = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame('01:15', $b->format('hh:mm'));
-        $this->assertSame('1:15', $b->format('h:mm'));
-        $this->assertSame('1', $b->format('h'));
-        $this->assertSame('15', $b->format('m'));
-    }
-
-    public function testFormattingToHuman(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame('1 hours 15 minutes', $a->toHuman());
-        $this->assertSame('1--hrs 15--mins', $a->toHuman('hrs', 'mins' , '--'));
-    }
-
-    public function testFormattingToShortHuman(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame('1hrs 15m', $a->toShortHuman());
-        $this->assertSame('1--h 15--m', $a->toHuman('h', 'm', '--'));
-    }
-
-    public function testTemporalUnitsTotalMinutes(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame(75, $a->totalMinutes);
-        $this->assertSame(75, $a->totalMinutes());
-    }
-
-    public function testTemporalUnitsGetHours(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame(1, $a->getHours());
-    }
-
-    public function testTemporalUnitsGetMinutes(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertSame(15, $a->getMinutes());
-    }
-
-    public function testToDateInterval(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $d = $a->toDateInterval();
-
-        $this->assertInstanceOf(\DateInterval::class, $d);
-        $this->assertSame('00:75', $d->format('%H:%I'));
-    }
-
-    public function testToImmutable(): void
-    {
-        $a = Duration::hoursAndMinutes(1, 15);
-
-        $this->assertInstanceOf(DurationImmutable::class, $a->toImmutable());
+        $duration = Duration::hours(2);
+        $this->assertEquals(7200, $duration->totalSeconds);
+        $this->assertEquals(120, $duration->totalMinutes);
+        $this->assertEquals(2, $duration->totalHours);
+        $this->assertEquals(0, $duration->totalDays);
+        $this->assertEquals(0, $duration->totalWeeks);
+        $this->assertEquals(0, $duration->totalMonths);
+        $this->assertEquals(0, $duration->totalYears);
     }
 }

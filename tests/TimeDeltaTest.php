@@ -4,321 +4,115 @@ namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\DurationImmutable;
 use AyupCreative\Duration\TimeDelta;
-use Carbon\CarbonInterval;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(TimeDelta::class)]
+#[UsesClass(DurationImmutable::class)]
 class TimeDeltaTest extends TestCase
 {
-    public function testBuildersZero(): void
+    /** @test */
+    public function it_can_be_instantiated_with_positive_seconds()
     {
-        $delta = TimeDelta::zero();
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(0, $delta->totalMinutes);
+        $delta = new TimeDelta(100);
+        $this->assertEquals(100, $delta->totalSeconds());
+        $this->assertTrue($delta->isPositive());
+        $this->assertFalse($delta->isNegative());
+        $this->assertEquals(1, $delta->sign());
     }
 
-    public function testBuildersMinutes(): void
+    /** @test */
+    public function it_can_be_instantiated_with_negative_seconds()
     {
-        $delta = TimeDelta::minutes(15);
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(15, $delta->totalMinutes);
-
-        $delta = TimeDelta::minutes(-15);
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(-15, $delta->totalMinutes);
+        $delta = new TimeDelta(-100);
+        $this->assertEquals(-100, $delta->totalSeconds());
+        $this->assertFalse($delta->isPositive());
+        $this->assertTrue($delta->isNegative());
+        $this->assertEquals(-1, $delta->sign());
     }
 
-    public function testBuildersHours(): void
+    /** @test */
+    public function it_is_immutable_on_arithmetic_operations()
     {
-        $delta = TimeDelta::hours(1);
+        $delta = TimeDelta::seconds(100);
+        $other = TimeDelta::seconds(50);
 
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(60, $delta->totalMinutes);
+        $added = $delta->add($other);
+        $this->assertNotSame($delta, $added);
+        $this->assertEquals(100, $delta->totalSeconds());
+        $this->assertEquals(150, $added->totalSeconds());
 
-        $delta = TimeDelta::hours(-1);
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(-60, $delta->totalMinutes);
+        $subbed = $delta->sub($other);
+        $this->assertNotSame($delta, $subbed);
+        $this->assertEquals(100, $delta->totalSeconds());
+        $this->assertEquals(50, $subbed->totalSeconds());
     }
 
-    public function testBuildersHoursAndMinutes(): void
+    /** @test */
+    public function it_can_go_negative()
     {
-        $delta = TimeDelta::hoursAndMinutes(1, 15);
+        $d1 = TimeDelta::seconds(100);
+        $d2 = TimeDelta::seconds(150);
 
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(75, $delta->totalMinutes);
-
-        $delta = TimeDelta::hoursAndMinutes(-1, -15);
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(-75, $delta->totalMinutes);
+        $result = $d1->sub($d2);
+        $this->assertEquals(-50, $result->totalSeconds());
     }
 
-    public function testBuildersFromCarbon(): void
+    /** @test */
+    public function it_can_invert_its_value()
     {
-        $carbon = CarbonInterval::minutes(30);
+        $delta = new TimeDelta(100);
+        $inverted = $delta->invert();
+        $this->assertEquals(-100, $inverted->totalSeconds());
 
-        $delta = TimeDelta::fromCarbon($carbon);
-
-        $this->assertInstanceOf(TimeDelta::class, $delta);
-        $this->assertSame(30, $delta->totalMinutes);
+        $this->assertEquals(100, $inverted->invert()->totalSeconds());
     }
 
-    public function testArithmeticAdd(): void
+    /** @test */
+    public function it_can_return_absolute_duration()
     {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
-
-        $c = $a->add($b);
-
-        $this->assertSame(75, $c->totalMinutes);
+        $delta = new TimeDelta(-100);
+        $absolute = $delta->absolute();
+        $this->assertInstanceOf(DurationImmutable::class, $absolute);
+        $this->assertEquals(100, $absolute->totalSeconds());
     }
 
-    public function testArithmeticSub(): void
+    /** @test */
+    public function it_supports_comparison_methods()
     {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
+        $delta = new TimeDelta(-100);
+        $zero = TimeDelta::zero();
 
-        $c = $a->sub($b);
+        $this->assertTrue($delta->isNegative());
+        $this->assertFalse($delta->isPositive());
+        $this->assertTrue($delta->isNotZero());
 
-        $this->assertSame(-45, $c->totalMinutes);
+        $this->assertTrue($zero->isZero());
+        $this->assertFalse($zero->isNotZero());
+        $this->assertFalse($zero->isPositive());
+        $this->assertFalse($zero->isNegative());
     }
 
-    public function testArithmeticMultiply(): void
+    /** @test */
+    public function it_supports_formatting_with_sign()
     {
-        $a = TimeDelta::minutes(15);
-
-        $b = $a->multiply(2);
-        $this->assertSame(30, $b->totalMinutes);
-
-        $c = $a->multiply(-2);
-        $this->assertSame(-30, $c->totalMinutes);
+        $delta = new TimeDelta(-3661); // -1h 1m 1s
+        $this->assertEquals('-01:01:01', $delta->format('*hh:mm:ss'));
+        $this->assertEquals('-1h 1m', $delta->toShortHuman());
+        $this->assertEquals('-1 hour 1 minute', $delta->toHuman());
     }
 
-    public function testArithmeticCeilTo(): void
+    /** @test */
+    public function it_can_convert_to_date_interval()
     {
-        $a = TimeDelta::minutes(10);
-        $b = $a->ceilTo(15);
+        $delta = new TimeDelta(-3661);
+        $interval = $delta->toDateInterval();
 
-        $this->assertSame(10, $a->totalMinutes);
-        $this->assertSame(15, $b->totalMinutes);
-    }
-
-    public function testArithmeticIsOver(): void
-    {
-        $a = TimeDelta::hours(1);
-        $b = TimeDelta::minutes(15);
-
-        $this->assertTrue($a->isOver($b));
-    }
-
-    public function testArithmeticIsBelow(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
-
-        $this->assertTrue($a->isBelow($b));
-    }
-
-    public function testIsLessThan(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::minutes(30);
-
-        $this->assertTrue($a->isLessThan($b));
-        $this->assertFalse($b->isLessThan($a));
-    }
-
-    public function testIsGreaterThan(): void
-    {
-        $a = TimeDelta::minutes(30);
-        $b = TimeDelta::minutes(15);
-
-        $this->assertTrue($a->isGreaterThan($b));
-        $this->assertFalse($b->isGreaterThan($a));
-    }
-
-    public function testIsLessThanOrEqualTo(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::minutes(15);
-        $c = TimeDelta::minutes(30);
-
-        $this->assertTrue($a->isLessThanOrEqualTo($b));
-        $this->assertTrue($b->isLessThanOrEqualTo($a));
-
-        $this->assertTrue($a->isLessThanOrEqualTo($c));
-        $this->assertFalse($c->isLessThanOrEqualTo($a));
-    }
-
-    public function testIsGreaterThanOrEqualTo(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::minutes(15);
-        $c = TimeDelta::minutes(30);
-
-        $this->assertTrue($a->isGreaterThanOrEqualTo($b));
-        $this->assertTrue($b->isGreaterThanOrEqualTo($a));
-
-        $this->assertFalse($a->isGreaterThanOrEqualTo($c));
-        $this->assertTrue($c->isGreaterThanOrEqualTo($a));
-    }
-
-    public function testArithmeticEquals(): void
-    {
-        $this->assertTrue(TimeDelta::minutes(15)->equals(TimeDelta::minutes(15)));
-        $this->assertTrue(TimeDelta::hours(1)->equals(TimeDelta::hours(1)));
-
-        $this->assertTrue(TimeDelta::minutes(60)->equals(TimeDelta::hours(1)));
-        $this->assertFalse(TimeDelta::minutes(60)->equals(TimeDelta::hours(2)));
-    }
-
-    public function testArithmeticDoesNotEqual(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
-
-        $this->assertTrue($a->doesNotEqual($b));
-
-        $a = TimeDelta::hours(1);
-        $b = TimeDelta::hours(1);
-
-        $this->assertFalse($b->doesNotEqual($a));
-    }
-
-    public function testArithmeticIsZero(): void
-    {
-        $this->assertTrue(TimeDelta::zero()->isZero());
-        $this->assertTrue(TimeDelta::minutes(0)->isZero());
-        $this->assertFalse(TimeDelta::minutes(1)->isZero());
-    }
-
-    public function testArithmeticIsNotZero(): void
-    {
-        $this->assertTrue(TimeDelta::minutes(1)->isNotZero());
-        $this->assertTrue(TimeDelta::hours(1)->isNotZero());
-        $this->assertFalse(TimeDelta::zero()->isNotZero());
-    }
-
-    public function testArithmeticMax(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
-
-        $c = $a->max($b);
-
-        $this->assertNotSame($a, $b);
-        $this->assertSame($b, $c);
-    }
-
-    public function testArithmeticMin(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::hours(1);
-
-        $c = $a->min($b);
-
-        $this->assertNotSame($a, $b);
-        $this->assertSame($a, $c);
-    }
-
-    public function testArithmeticDiff(): void
-    {
-        $a = TimeDelta::minutes(15);
-        $b = TimeDelta::minutes(30);
-
-        $d1 = $a->diff($b);
-        $d2 = $b->diff($a);
-
-        $this->assertSame(-15, $d1->totalMinutes);
-        $this->assertSame(15, $d2->totalMinutes);
-    }
-
-    public function testFormattingFormat(): void
-    {
-        $a = TimeDelta::minutes(15);
-
-        $this->assertSame('00:15', $a->format('hh:mm'));
-        $this->assertSame('0:15', $a->format('h:mm'));
-        $this->assertSame('15', $a->format('mm'));
-
-        $b = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame('01:15', $b->format('hh:mm'));
-        $this->assertSame('1:15', $b->format('h:mm'));
-        $this->assertSame('1', $b->format('h'));
-        $this->assertSame('15', $b->format('m'));
-    }
-
-    public function testFormattingToHuman(): void
-    {
-        $a = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame('1 hours 15 minutes', $a->toHuman());
-        $this->assertSame('1--hrs 15--mins', $a->toHuman('hrs', 'mins' , '--'));
-    }
-
-    public function testFormattingToShortHuman(): void
-    {
-        $a = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame('1hrs 15m', $a->toShortHuman());
-        $this->assertSame('1--h 15--m', $a->toShortHuman('h', 'm', '--'));
-    }
-
-    public function testTemporalUnitsTotalMinutes(): void
-    {
-        $a = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame(75, $a->totalMinutes);
-        $this->assertSame(75, $a->totalMinutes());
-    }
-
-    public function testTemporalUnitsGetHours(): void
-    {
-        $a = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame(1, $a->getHours());
-    }
-
-    public function testTemporalUnitsGetMinutes(): void
-    {
-        $a = TimeDelta::hoursAndMinutes(1, 15);
-
-        $this->assertSame(15, $a->getMinutes());
-    }
-
-    public function testIsPositive(): void
-    {
-        $this->assertTrue(TimeDelta::minutes(15)->isPositive());
-        $this->assertFalse(TimeDelta::minutes(-15)->isPositive());
-    }
-
-    public function testIsNegative(): void
-    {
-        $this->assertTrue(TimeDelta::minutes(-15)->isNegative());
-        $this->assertFalse(TimeDelta::minutes(15)->isNegative());
-    }
-
-    public function testInvert(): void
-    {
-        $this->assertSame(-15, TimeDelta::minutes(15)->invert()->totalMinutes());
-        $this->assertSame(15, TimeDelta::minutes(-15)->invert()->totalMinutes());
-    }
-
-    public function testSign(): void
-    {
-        $this->assertSame(1, TimeDelta::minutes(10)->sign());
-        $this->assertSame(-1, TimeDelta::minutes(-10)->sign());
-        $this->assertSame(0, TimeDelta::minutes(0)->sign());
-    }
-
-    public function testAbsolute(): void
-    {
-        $this->assertInstanceOf(DurationImmutable::class, TimeDelta::minutes(15)->absolute());
-        $this->assertSame(15, TimeDelta::minutes(15)->absolute()->totalMinutes());
-        $this->assertSame(15, TimeDelta::minutes(-15)->absolute()->totalMinutes());
+        $this->assertInstanceOf(\DateInterval::class, $interval);
+        $this->assertEquals(1, $interval->h);
+        $this->assertEquals(1, $interval->i);
+        $this->assertEquals(1, $interval->s);
+        $this->assertEquals(1, $interval->invert);
     }
 }

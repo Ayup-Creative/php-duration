@@ -1,60 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration;
 
-use AyupCreative\Duration\Features\Arithmetic;
-use AyupCreative\Duration\Features\Builders;
-use AyupCreative\Duration\Features\Formatting;
-use AyupCreative\Duration\Features\TemporalUnits;
-
-/**
- * @property int $totalMinutes
- */
-final class TimeDelta
+final class TimeDelta implements \JsonSerializable
 {
-    use Arithmetic;
-    use Builders;
-    use Formatting;
-    use TemporalUnits;
+    use Features\Arithmetic;
+    use Features\Builders;
+    use Features\Constants;
+    use Features\Conversion;
+    use Features\Formatting;
+    use Features\MagicProperties;
+    use Features\TemporalUnits;
 
-    private int $totalMinutes;
+    protected int $totalSeconds;
 
-    private function __construct(int $minutes)
+    public function __construct(int $seconds)
     {
-        $this->totalMinutes = $minutes;
+        $this->totalSeconds = $seconds;
     }
 
     public function isPositive(): bool
     {
-        return $this->totalMinutes > 0;
+        return $this->totalSeconds > 0;
     }
 
     public function isNegative(): bool
     {
-        return $this->totalMinutes < 0;
+        return $this->totalSeconds < 0;
     }
 
     public function invert(): self
     {
-        return new self(-$this->totalMinutes);
+        return new self(-$this->totalSeconds);
     }
 
     public function sign(): int
     {
-        return $this->totalMinutes <=> 0;
+        return $this->totalSeconds <=> 0;
     }
 
     public function absolute(): DurationImmutable
     {
-        return DurationImmutable::minutes(abs($this->totalMinutes));
-    }
-
-    public function __get($name)
-    {
-        if($name === 'totalMinutes') {
-            return $this->totalMinutes;
-        }
-
-        throw new \Error('Undefined property: ' . static::class . '::' . $name);
+        return DurationImmutable::seconds(abs($this->totalSeconds));
     }
 }
