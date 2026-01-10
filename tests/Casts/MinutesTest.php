@@ -4,6 +4,7 @@ namespace AyupCreative\Duration\Tests\Casts;
 
 use AyupCreative\Duration\Casts\DurationCast;
 use AyupCreative\Duration\Casts\Minutes;
+use AyupCreative\Duration\Duration;
 use AyupCreative\Duration\DurationImmutable;
 use AyupCreative\Duration\TimeDelta;
 use Illuminate\Database\Eloquent\Model;
@@ -12,12 +13,13 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(Minutes::class)]
 #[CoversClass(DurationCast::class)]
+#[UsesClass(Duration::class)]
 #[UsesClass(DurationImmutable::class)]
 #[UsesClass(TimeDelta::class)]
 #[UsesClass(\AyupCreative\Duration\Casts\Seconds::class)]
 class MinutesTest extends Cast
 {
-    public function testGet(): void
+    public function test_get(): void
     {
         $model = CastMinuteTestModel::create(['duration' => 3]);
 
@@ -30,7 +32,7 @@ class MinutesTest extends Cast
         $this->assertEquals(3, $model->getRawOriginal('duration'));
     }
 
-    public function testSet(): void
+    public function test_set(): void
     {
         $model = new CastMinuteTestModel;
 
@@ -39,6 +41,17 @@ class MinutesTest extends Cast
 
         $this->assertEquals(2, $model->duration->totalMinutes());
         $this->assertEquals(2, $model->getRawOriginal('duration'));
+    }
+
+    public function test_null(): void
+    {
+        $model = new CastMinuteTestModel;
+        $model->duration = null;
+        $model->save();
+
+        $model = $model->fresh();
+        $this->assertNull($model->duration);
+        $this->assertNull($model->getRawOriginal('duration'));
     }
 }
 
