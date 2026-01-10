@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-final class TimeDelta implements \JsonSerializable
+final class TimeDelta implements \JsonSerializable, DurationInterface
 {
     use Features\Arithmetic;
     use Features\Builders;

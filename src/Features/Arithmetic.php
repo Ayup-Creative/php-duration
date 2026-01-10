@@ -2,6 +2,7 @@
 
 namespace AyupCreative\Duration\Features;
 
+use AyupCreative\Duration\DurationInterface;
 use AyupCreative\Duration\TimeDelta;
 
 /**
@@ -14,12 +15,12 @@ trait Arithmetic
      *
      * Usage: $duration->add(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      */
-    public function add(self $other): self
+    public function add(DurationInterface $other): self
     {
-        return new self($this->totalSeconds + $other->totalSeconds);
+        return new self($this->totalSeconds + $other->totalSeconds());
     }
 
     /**
@@ -27,12 +28,12 @@ trait Arithmetic
      *
      * Usage: $duration->sub(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      */
-    public function sub(self $other): self
+    public function sub(DurationInterface $other): self
     {
-        return new self($this->totalSeconds - $other->totalSeconds);
+        return new self($this->totalSeconds - $other->totalSeconds());
     }
 
     /**
@@ -58,6 +59,10 @@ trait Arithmetic
      */
     public function ceilTo(int $seconds): self
     {
+        if ($seconds === 0) {
+            return $this;
+        }
+
         return new self(
             (int) (ceil($this->totalSeconds / $seconds) * $seconds)
         );
@@ -107,12 +112,12 @@ trait Arithmetic
      *
      * Usage: $duration->isOver(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isOver(self $other): bool
+    public function isOver(DurationInterface $other): bool
     {
-        return $this->totalSeconds > $other->totalSeconds;
+        return $this->totalSeconds > $other->totalSeconds();
     }
 
     /**
@@ -120,12 +125,12 @@ trait Arithmetic
      *
      * Usage: $duration->isBelow(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isBelow(self $other): bool
+    public function isBelow(DurationInterface $other): bool
     {
-        return $this->totalSeconds < $other->totalSeconds;
+        return $this->totalSeconds < $other->totalSeconds();
     }
 
     /**
@@ -133,10 +138,10 @@ trait Arithmetic
      *
      * Usage: $duration->isLessThan(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isLessThan(self $other): bool
+    public function isLessThan(DurationInterface $other): bool
     {
         return $this->isBelow($other);
     }
@@ -146,10 +151,10 @@ trait Arithmetic
      *
      * Usage: $duration->isGreaterThan(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isGreaterThan(self $other): bool
+    public function isGreaterThan(DurationInterface $other): bool
     {
         return $this->isOver($other);
     }
@@ -159,10 +164,10 @@ trait Arithmetic
      *
      * Usage: $duration->isLessThanOrEqualTo(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isLessThanOrEqualTo(self $other): bool
+    public function isLessThanOrEqualTo(DurationInterface $other): bool
     {
         return $this->isBelow($other) || $this->equals($other);
     }
@@ -172,10 +177,10 @@ trait Arithmetic
      *
      * Usage: $duration->isGreaterThanOrEqualTo(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function isGreaterThanOrEqualTo(self $other): bool
+    public function isGreaterThanOrEqualTo(DurationInterface $other): bool
     {
         return $this->isOver($other) || $this->equals($other);
     }
@@ -185,12 +190,12 @@ trait Arithmetic
      *
      * Usage: $duration->equals(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function equals(self $other): bool
+    public function equals(DurationInterface $other): bool
     {
-        return $this->totalSeconds === $other->totalSeconds;
+        return $this->totalSeconds === $other->totalSeconds();
     }
 
     /**
@@ -198,10 +203,10 @@ trait Arithmetic
      *
      * Usage: $duration->doesNotEqual(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return bool
      */
-    public function doesNotEqual(self $other): bool
+    public function doesNotEqual(DurationInterface $other): bool
     {
         return !$this->equals($other);
     }
@@ -235,12 +240,16 @@ trait Arithmetic
      *
      * Usage: $max = $duration->max(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      */
-    public function max(self $other): self
+    public function max(DurationInterface $other): self
     {
-        return $this->totalSeconds >= $other->totalSeconds ? $this : $other;
+        if ($this->totalSeconds >= $other->totalSeconds()) {
+            return $this;
+        }
+
+        return $other instanceof self ? $other : new self($other->totalSeconds());
     }
 
     /**
@@ -248,12 +257,16 @@ trait Arithmetic
      *
      * Usage: $min = $duration->min(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      */
-    public function min(self $other): self
+    public function min(DurationInterface $other): self
     {
-        return $this->totalSeconds <= $other->totalSeconds ? $this : $other;
+        if ($this->totalSeconds <= $other->totalSeconds()) {
+            return $this;
+        }
+
+        return $other instanceof self ? $other : new self($other->totalSeconds());
     }
 
     /**
@@ -261,13 +274,13 @@ trait Arithmetic
      *
      * Usage: $delta = $duration->diff(Duration::minutes(5));
      *
-     * @param self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return \AyupCreative\Duration\TimeDelta
      */
-    public function diff(self $other): TimeDelta
+    public function diff(DurationInterface $other): TimeDelta
     {
         return TimeDelta::seconds(
-            $this->totalSeconds - $other->totalSeconds
+            $this->totalSeconds - $other->totalSeconds()
         );
     }
 }

@@ -64,12 +64,14 @@ abstract class DurationCast implements CastsAttributes
 
         $method = 'total'.ucfirst($this->getUnitsMethod());
 
-        return match (true) {
+        $result = match (true) {
             $value instanceof DurationImmutable, $value instanceof Duration => $value->$method(),
-            $value instanceof TimeDelta => $value->absolute()->$method(),
+            $value instanceof TimeDelta => $value->$method(),
             is_int($value) => $value,
             is_numeric($value) => (int) $value,
             default => throw new InvalidArgumentException('Invalid duration value ['.gettype($value).']'),
         };
+
+        return max(0, $result);
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-final class Duration implements \JsonSerializable
+final class Duration implements \JsonSerializable, DurationInterface
 {
     use Features\Arithmetic;
     use Features\Builders;
@@ -32,13 +32,13 @@ final class Duration implements \JsonSerializable
      *
      * Usage: $duration->add(Duration::minutes(5));
      *
-     * @param \AyupCreative\Duration\DurationImmutable|self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      * @see \AyupCreative\Duration\Tests\DurationTest::it_is_mutable_on_arithmetic_operations()
      */
-    public function add(DurationImmutable|self $other): self
+    public function add(DurationInterface $other): self
     {
-        $seconds = $this->totalSeconds + $other->totalSeconds;
+        $seconds = $this->totalSeconds + $other->totalSeconds();
 
         $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
@@ -49,13 +49,13 @@ final class Duration implements \JsonSerializable
      *
      * Usage: $duration->sub(Duration::minutes(5));
      *
-     * @param \AyupCreative\Duration\DurationImmutable|self $other
+     * @param \AyupCreative\Duration\DurationInterface $other
      * @return self
      * @see \AyupCreative\Duration\Tests\DurationTest::it_is_mutable_on_arithmetic_operations()
      */
-    public function sub(DurationImmutable|self $other): self
+    public function sub(DurationInterface $other): self
     {
-        $seconds = $this->totalSeconds - $other->totalSeconds;
+        $seconds = $this->totalSeconds - $other->totalSeconds();
 
         $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
@@ -91,7 +91,7 @@ final class Duration implements \JsonSerializable
     {
         $seconds = (int)(ceil($this->totalSeconds / $seconds) * $seconds);
 
-        $this->totalSeconds = (new self($seconds))->totalSeconds;;
+        $this->totalSeconds = (new self($seconds))->totalSeconds;
         return $this;
     }
 

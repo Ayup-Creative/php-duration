@@ -84,9 +84,12 @@ trait Formatting
                 $output[] = $parts['minutes'] . 'm';
             }
 
-            // Only include seconds if non-zero (optional)
-            if ($parts['seconds'] > 0 && empty($output)) {
+            if ($parts['seconds'] > 0) {
                 $output[] = $parts['seconds'] . 's';
+            }
+
+            if (empty($output)) {
+                return ($parts['sign'] ?? '') . '0s';
             }
 
             return ($parts['sign'] ?? '') . implode(' ', $output);
@@ -117,33 +120,31 @@ trait Formatting
      */
     private function defaultHuman(array $parts): string
     {
-        if (abs($this->totalSeconds) < self::SECONDS_PER_MINUTE) {
-            return $parts['sign'] . $parts['seconds'] . ' ' . $this->pluralize($parts['seconds'], 'second');
-        }
+        $output = [];
 
         if ($parts['days'] > 0) {
-            return sprintf(
-                '%s%d%s%s %d%s%s',
-                $parts['sign'],
-                $parts['days'],
-                ' ',
-                $this->pluralize($parts['days'], 'day'),
-                $parts['hours'],
-                ' ',
-                $this->pluralize($parts['hours'], 'hour')
-            );
+            $output[] = $parts['days'] . ' ' . $this->pluralize($parts['days'], 'day');
         }
 
-        return sprintf(
-            '%s%d%s%s %d%s%s',
-            $parts['sign'],
-            $parts['hours'],
-            ' ',
-            $this->pluralize($parts['hours'], 'hour'),
-            $parts['minutes'],
-            ' ',
-            $this->pluralize($parts['minutes'], 'minute')
-        );
+        if ($parts['hours'] > 0) {
+             $output[] = $parts['hours'] . ' ' . $this->pluralize($parts['hours'], 'hour');
+        }
+
+        if ($parts['minutes'] > 0) {
+            $output[] = $parts['minutes'] . ' ' . $this->pluralize($parts['minutes'], 'minute');
+        }
+
+        if ($parts['seconds'] > 0) {
+            $output[] = $parts['seconds'] . ' ' . $this->pluralize($parts['seconds'], 'second');
+        }
+
+        if (empty($output)) {
+            return $parts['sign'] . '0 seconds';
+        }
+
+        $humanParts = array_slice($output, 0, 2);
+
+        return $parts['sign'] . implode(' ', $humanParts);
     }
 
     /**

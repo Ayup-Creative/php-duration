@@ -66,7 +66,7 @@ class Cast extends TestCase
         $model->duration = new TimeDelta(-50);
         $model->save();
         $model = $model->fresh();
-        $this->assertEquals(50, $model->getRawOriginal('duration'));
+        $this->assertEquals(0, $model->getRawOriginal('duration'));
     }
 
     public function test_cast_with_duration(): void

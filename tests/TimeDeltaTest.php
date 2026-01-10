@@ -99,8 +99,11 @@ class TimeDeltaTest extends TestCase
     {
         $delta = new TimeDelta(-3661); // -1h 1m 1s
         $this->assertEquals('-01:01:01', $delta->format('*hh:mm:ss'));
-        $this->assertEquals('-1h 1m', $delta->toShortHuman());
+        $this->assertEquals('-1h 1m 1s', $delta->toShortHuman());
         $this->assertEquals('-1 hour 1 minute', $delta->toHuman());
+
+        $delta2 = new TimeDelta(-60); // -1 minute
+        $this->assertEquals('-1 minute', $delta2->toHuman());
     }
 
     /** @test */

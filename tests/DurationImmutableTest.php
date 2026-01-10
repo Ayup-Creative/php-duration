@@ -34,11 +34,15 @@ class DurationImmutableTest extends TestCase
     {
         $d1 = DurationImmutable::seconds(100);
         $d2 = DurationImmutable::seconds(50);
+        $mutable = Duration::seconds(25);
 
         $added = $d1->add($d2);
         $this->assertNotSame($d1, $added);
         $this->assertEquals(100, $d1->totalSeconds());
         $this->assertEquals(150, $added->totalSeconds());
+
+        $addedMutable = $d1->add($mutable);
+        $this->assertEquals(125, $addedMutable->totalSeconds());
 
         $subbed = $d1->sub($d2);
         $this->assertNotSame($d1, $subbed);
@@ -138,9 +142,24 @@ class DurationImmutableTest extends TestCase
     {
         $d1 = DurationImmutable::seconds(100);
         $d2 = DurationImmutable::seconds(200);
+        $mutable = Duration::seconds(300);
 
         $this->assertSame($d2, $d1->max($d2));
+        $this->assertSame($d1, $d1->max($d1)); // Cover return $this
+        $this->assertEquals(300, $d1->max($mutable)->totalSeconds()); // Cover new self
+        $this->assertInstanceOf(DurationImmutable::class, $d1->max($mutable));
+
         $this->assertSame($d1, $d1->min($d2));
+        $this->assertSame($d2, $d2->min($d2)); // Cover return $this
+        $this->assertEquals(100, $d2->min($d1)->totalSeconds());
+    }
+
+    /** @test */
+    public function it_supports_formatting_zeros()
+    {
+        $zero = DurationImmutable::zero();
+        $this->assertEquals('0 seconds', $zero->toHuman());
+        $this->assertEquals('0s', $zero->toShortHuman());
     }
 
     /** @test */
@@ -151,9 +170,7 @@ class DurationImmutableTest extends TestCase
 
         $diff = $d1->diff($d2);
         $this->assertInstanceOf(TimeDelta::class, $diff);
-        // If d1 < d2, diff should be negative if it's a true delta
-        // But the constructor of TimeDelta currently has max(0, $seconds)
-        // $this->assertEquals(-50, $diff->totalSeconds());
+        $this->assertEquals(-50, $diff->totalSeconds());
     }
 
     /** @test */
@@ -171,6 +188,7 @@ class DurationImmutableTest extends TestCase
         $this->assertEquals('1 day 2 hours', DurationImmutable::make(1, 2, 3, 4)->toHuman());
         $this->assertEquals('2 hours 3 minutes', DurationImmutable::make(0, 2, 3, 4)->toHuman());
         $this->assertEquals('4 seconds', DurationImmutable::seconds(4)->toHuman());
+        $this->assertEquals('1 day 1 minute', DurationImmutable::make(1, 0, 1, 0)->toHuman());
 
         $this->assertEquals('CUSTOM', DurationImmutable::seconds(10)->toHuman(fn() => 'CUSTOM'));
     }
@@ -178,7 +196,7 @@ class DurationImmutableTest extends TestCase
     /** @test */
     public function it_supports_short_human_formatting()
     {
-        $this->assertEquals('1d 2h 3m', DurationImmutable::make(1, 2, 3, 4)->toShortHuman());
+        $this->assertEquals('1d 2h 3m 4s', DurationImmutable::make(1, 2, 3, 4)->toShortHuman());
         $this->assertEquals('4s', DurationImmutable::seconds(4)->toShortHuman());
     }
 
@@ -189,6 +207,7 @@ class DurationImmutableTest extends TestCase
 
         $this->assertEquals(120, $duration->ceilToMinutes(1)->totalSeconds());
         $this->assertEquals(90, $duration->ceilTo(30)->totalSeconds());
+        $this->assertSame($duration, $duration->ceilTo(0));
 
         $duration = DurationImmutable::hours(1)->add(DurationImmutable::minutes(5)); // 1h 5m
         $this->assertEquals(7200, $duration->ceilToHours(1)->totalSeconds()); // 2h

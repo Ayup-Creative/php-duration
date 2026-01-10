@@ -4,9 +4,10 @@ namespace AyupCreative\Duration\Features;
 
 /**
  * @property int $totalSeconds
- * @property float $totalMinutes
+ * @property int $totalMinutes
  * @property int $totalHours
  * @property int $totalDays
+ * @property int $totalWeeks
  * @property int $totalMonths
  * @property int $totalYears
  */
