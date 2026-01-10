@@ -1,6 +1,6 @@
 # Duration
 
-[![PHP Tests](https://github.com/ayup-creative/duration/actions/workflows/phpunit.yml/badge.svg)](https://github.com/ayup-creative/duration/actions/workflows/phpunit.yml)
+[![PHP Tests](https://github.com/Ayup-Creative/php-duration/actions/workflows/phpunit.yml/badge.svg)](https://github.com/Ayup-Creative/php-duration/actions/workflows/phpunit.yml)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
 [![Total Downloads](https://img.shields.io/packagist/dt/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
 [![License](https://img.shields.io/packagist/l/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
@@ -158,4 +158,4 @@ vendor/bin/phpunit
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
