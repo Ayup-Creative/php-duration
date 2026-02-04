@@ -16,6 +16,75 @@ use PHPUnit\Framework\TestCase;
 class DurationImmutableTest extends TestCase
 {
     /** @test */
+    public function it_supports_unit_formatting()
+    {
+        $duration = DurationImmutable::hours(10);
+        $this->assertEquals('10h', $duration->formatUnits(['hours']));
+        $this->assertEquals('10h 0m', $duration->formatUnits(['hours', 'minutes']));
+        $this->assertEquals('10h 0m 0s', $duration->formatUnits(['hours', 'minutes', 'seconds']));
+
+        $this->assertEquals('0d 10h', $duration->formatUnits(['days', 'hours']));
+        $this->assertEquals('0w 0d 10h', $duration->formatUnits(['weeks', 'days', 'hours']));
+        $this->assertEquals('0y 0d 10h', $duration->formatUnits(['years', 'days', 'hours']));
+    }
+
+    /** @test */
+    public function it_supports_forced_unit_formatting()
+    {
+        $duration = DurationImmutable::hours(100);
+
+        $this->assertEquals('100h', $duration->formatUnits(['hours']));
+    }
+
+    /** @test */
+    public function it_throws_exception_on_invalid_unit()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        DurationImmutable::hours(100)->formatUnits(['invalid']);
+    }
+
+    /** @test */
+    public function it_supports_formatting_without_units()
+    {
+        $duration = DurationImmutable::hours(100);
+
+        $this->assertEquals('100', $duration->formatUnits(['hours'], ['units' => false]));
+        $this->assertEquals('4 4', $duration->formatUnits(['days', 'hours'], ['units' => false]));
+    }
+
+    /** @test */
+    public function it_supports_formatting_with_custom_spacer()
+    {
+        $duration = DurationImmutable::hours(100);
+
+        $this->assertEquals('4d and 4h', $duration->formatUnits(['days', 'hours'], ['spacer' => ' and ']));
+    }
+
+    /** @test */
+    public function it_supports_formatting_with_padding()
+    {
+        $duration = DurationImmutable::hours(4);
+
+        $this->assertEquals('004h', $duration->formatUnits(['hours'], ['pad' => 3]));
+        $this->assertEquals('04h', $duration->formatUnits(['hours'], ['pad' => 2]));
+    }
+
+    /** @test */
+    public function it_supports_combined_formatting()
+    {
+        $duration = DurationImmutable::hours(100);
+
+        $this->assertEquals('04:04', $duration->formatUnits(['days', 'hours'], ['spacer' => ':', 'pad' => 2, 'units' => false]));
+    }
+
+    /** @test */
+    public function it_throws_exception_when_no_units_passed_to_formatUnits()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        DurationImmutable::hours(100)->formatUnits([]);
+    }
+
+    /** @test */
     public function it_can_be_instantiated_with_seconds()
     {
         $duration = new DurationImmutable(100);
@@ -235,7 +304,7 @@ class DurationImmutableTest extends TestCase
         $this->assertEquals(26, $duration->totalHours());
         $this->assertEquals(1563, $duration->totalMinutes());
         $this->assertEquals(93784, $duration->totalSeconds());
-        
+
         $this->assertEquals(0, $duration->totalWeeks());
         $this->assertEquals(0, $duration->totalMonths());
         $this->assertEquals(0, $duration->totalYears());
@@ -246,7 +315,7 @@ class DurationImmutableTest extends TestCase
 
         $large = DurationImmutable::weeks(2);
         $this->assertEquals(2, $large->totalWeeks());
-        
+
         $month = DurationImmutable::months(1);
         $this->assertEquals(1, $month->totalMonths());
 

@@ -4,6 +4,12 @@ namespace AyupCreative\Duration\Features;
 
 trait Formatting
 {
+    private const DEFAULT_FORMATTING_OPTIONS = [
+        'spacer' => ' ',
+        'units'  => true,
+        'pad'    => null,
+    ];
+
     /**
      * Format the duration using a format string.
      *
@@ -125,16 +131,17 @@ trait Formatting
      * Formats a duration in terms of specified units.
      *
      * @param array $units A list of time units (e.g., ['hours', 'minutes', 'seconds']) to format the duration into.
-     * @param bool $includeUnits Indicates whether to append unit suffixes (e.g., 'h', 'm', 's') to the formatted values.
-     * @param string $separator The string used to separate the formatted unit values in the output.
+     * @param array $options Additional formatting options.
      * @return string A string representation of the duration, formatted according to the specified units and options.
      * @throws \InvalidArgumentException If the units array is empty or contains an unrecognized unit.
      */
-    public function formatUnits(array $units, bool $includeUnits = true, string $separator = ' '): string
+    public function formatUnits(array $units, array $options = []): string
     {
         if ($units === []) {
             throw new \InvalidArgumentException('At least one unit must be specified.');
         }
+
+        $options = array_replace(self::DEFAULT_FORMATTING_OPTIONS, $options);
 
         $seconds = abs($this->totalSeconds);
         $sign = $this->totalSeconds < 0 ? '-' : '';
@@ -142,19 +149,40 @@ trait Formatting
         $parts = [];
 
         foreach ($units as $unit) {
-            if (static::unitSeconds($unit) === null) {
+            if (self::unitSeconds($unit) === null) {
                 throw new \InvalidArgumentException("Unknown unit [$unit].");
             }
 
-            $unitSeconds = static::unitSeconds($unit);
-
+            $unitSeconds = self::unitSeconds($unit);
             $value = intdiv($seconds, $unitSeconds);
             $seconds -= $value * $unitSeconds;
 
-            $parts[] = $value . ($includeUnits ? $this->unitSuffix($unit) : '');
+            $valueStr = $this->formatValue($value, $options['pad']);
+
+            if ($options['units']) {
+                $valueStr .= $this->unitSuffix($unit);
+            }
+
+            $parts[] = $valueStr;
         }
 
-        return $sign . implode($separator, $parts);
+        return $sign . implode($options['spacer'], $parts);
+    }
+
+    /**
+     * Formats an integer value as a string, optionally padding it with leading zeros.
+     *
+     * @param int $value The integer value to format.
+     * @param int|null $pad The total width of the resulting string. If null, no padding is applied.
+     * @return string The formatted string with optional padding.
+     */
+    private function formatValue(int $value, ?int $pad): string
+    {
+        if ($pad === null) {
+            return (string) $value;
+        }
+
+        return str_pad((string) $value, $pad, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -171,6 +199,7 @@ trait Formatting
             'hours'   => 'h',
             'days'    => 'd',
             'weeks'   => 'w',
+            'years'   => 'y',
             default   => $unit,
         };
     }
