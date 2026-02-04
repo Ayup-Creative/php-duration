@@ -122,11 +122,13 @@ trait Formatting
     }
 
     /**
-     * Formats a collection of time units into a human-readable string representation.
+     * Formats a duration in terms of specified units.
      *
-     * @param array $units An array of time unit names to format (e.g., ['hours', 'minutes', 'seconds']).
-     * @return string The formatted string representing the time, with each unit suffixed appropriately.
-     * @throws \InvalidArgumentException If no units are provided or if an unknown unit is encountered.
+     * @param array $units A list of time units (e.g., ['hours', 'minutes', 'seconds']) to format the duration into.
+     * @param bool $includeUnits Indicates whether to append unit suffixes (e.g., 'h', 'm', 's') to the formatted values.
+     * @param string $separator The string used to separate the formatted unit values in the output.
+     * @return string A string representation of the duration, formatted according to the specified units and options.
+     * @throws \InvalidArgumentException If the units array is empty or contains an unrecognized unit.
      */
     public function formatUnits(array $units, bool $includeUnits = true, string $separator = ' '): string
     {
