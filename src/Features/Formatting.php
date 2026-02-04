@@ -103,6 +103,77 @@ trait Formatting
     }
 
     /**
+     * Converts time units into their respective values in seconds.
+     *
+     * @return null|int Number of seconds per unit.
+     */
+    protected static function unitSeconds(string $unit): ?int
+    {
+        $units = [
+            'seconds' => 1,
+            'minutes' => self::SECONDS_PER_MINUTE,
+            'hours'   => self::SECONDS_PER_HOUR,
+            'days'    => self::SECONDS_PER_DAY,
+            'weeks'   => self::SECONDS_PER_WEEK,
+            'years'   => self::SECONDS_PER_YEAR,
+        ];
+
+        return $units[$unit] ?? null;
+    }
+
+    /**
+     * Formats a collection of time units into a human-readable string representation.
+     *
+     * @param array $units An array of time unit names to format (e.g., ['hours', 'minutes', 'seconds']).
+     * @return string The formatted string representing the time, with each unit suffixed appropriately.
+     * @throws \InvalidArgumentException If no units are provided or if an unknown unit is encountered.
+     */
+    public function formatUnits(array $units, bool $includeUnits = true, string $separator = ' '): string
+    {
+        if ($units === []) {
+            throw new \InvalidArgumentException('At least one unit must be specified.');
+        }
+
+        $seconds = abs($this->totalSeconds);
+        $sign = $this->totalSeconds < 0 ? '-' : '';
+
+        $parts = [];
+
+        foreach ($units as $unit) {
+            if (static::unitSeconds($unit) === null) {
+                throw new \InvalidArgumentException("Unknown unit [$unit].");
+            }
+
+            $unitSeconds = static::unitSeconds($unit);
+
+            $value = intdiv($seconds, $unitSeconds);
+            $seconds -= $value * $unitSeconds;
+
+            $parts[] = $value . ($includeUnits ? $this->unitSuffix($unit) : '');
+        }
+
+        return $sign . implode($separator, $parts);
+    }
+
+    /**
+     * Converts a time unit to its corresponding suffix.
+     *
+     * @param string $unit The name of the time unit (e.g., 'seconds', 'minutes', etc.).
+     * @return string The shortened suffix for the provided time unit. If no match is found, the original unit string is returned.
+     */
+    private function unitSuffix(string $unit): string
+    {
+        return match ($unit) {
+            'seconds' => 's',
+            'minutes' => 'm',
+            'hours'   => 'h',
+            'days'    => 'd',
+            'weeks'   => 'w',
+            default   => $unit,
+        };
+    }
+
+    /**
      * Convert the duration to a string (hh:mm).
      *
      * @return string
