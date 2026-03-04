@@ -9,11 +9,11 @@ trait Wireable
     /**
      * Get the value that should be stored by Livewire.
      *
-     * @return int
+     * @return array
      */
-    public function toLivewire(): int
+    public function toLivewire()
     {
-        return $this->totalSeconds();
+        return ['seconds' => $this->totalSeconds];
     }
 
     /**
@@ -24,6 +24,6 @@ trait Wireable
      */
     public static function fromLivewire($value): static
     {
-        return static::seconds((int) $value);
+        return static::seconds(...$value);
     }
 }
