@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\Duration;
@@ -87,7 +89,7 @@ class DurationTest extends TestCase
         $this->assertEquals(26, $duration->totalHours());
         $this->assertEquals(1563, $duration->totalMinutes());
         $this->assertEquals(93784, $duration->totalSeconds());
-        
+
         $this->assertEquals(0, $duration->totalWeeks());
         $this->assertEquals(0, $duration->totalMonths());
         $this->assertEquals(0, $duration->totalYears());

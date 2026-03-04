@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-final class DurationImmutable implements \JsonSerializable, DurationInterface
+final class DurationImmutable implements \JsonSerializable, DurationInterface, Wireable
 {
     use Features\Arithmetic;
     use Features\Builders;
@@ -13,6 +13,7 @@ final class DurationImmutable implements \JsonSerializable, DurationInterface
     use Features\Formatting;
     use Features\MagicProperties;
     use Features\TemporalUnits;
+    use Features\Wireable;
 
     protected int $totalSeconds;
 
