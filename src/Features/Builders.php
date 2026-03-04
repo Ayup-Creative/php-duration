@@ -126,6 +126,19 @@ trait Builders
     }
 
     /**
+     * Create a duration from a string.
+     *
+     * Usage: $duration = Duration::parse('1h 30m');
+     *
+     * @param string $string
+     * @return self
+     */
+    public static function parse(string $string): self
+    {
+        return new self((int) CarbonInterval::make($string)->totalSeconds);
+    }
+
+    /**
      * Create a duration from a CarbonInterval.
      *
      * @param \Carbon\CarbonInterval $interval

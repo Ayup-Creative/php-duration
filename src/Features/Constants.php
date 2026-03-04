@@ -11,7 +11,7 @@ trait Constants
     public const SECONDS_PER_DAY   = 86400;
     public const SECONDS_PER_WEEK  = 604800;
     public const SECONDS_PER_MONTH = 2629800; // 30.44 days
-    public const SECONDS_PER_YEAR  = 31557600; // 365.25 days
+    public const SECONDS_PER_YEAR  = 31536000; // 365 days
 
     /**
      * Decompose the duration into days, hours, minutes, and seconds.
