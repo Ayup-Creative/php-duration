@@ -90,6 +90,10 @@ final class Duration implements \JsonSerializable, DurationInterface, Wireable
      */
     public function ceilTo(int $seconds): self
     {
+        if ($seconds === 0) {
+            return $this;
+        }
+
         $seconds = (int)(ceil($this->totalSeconds / $seconds) * $seconds);
 
         $this->totalSeconds = (new self($seconds))->totalSeconds;

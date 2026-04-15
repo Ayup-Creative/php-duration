@@ -69,6 +69,10 @@ class DurationTest extends TestCase
         $duration = Duration::days(1)->add(Duration::hours(5)); // 1d 5h
         $duration->ceilToDays(1);
         $this->assertEquals(172800, $duration->totalSeconds()); // 2d
+
+        $duration = Duration::seconds(65);
+        $duration->ceilTo(0);
+        $this->assertEquals(65, $duration->totalSeconds());
     }
 
     /** @test */
