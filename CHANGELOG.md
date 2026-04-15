@@ -5,6 +5,14 @@
 
 ### Miscellaneous Chores
 
+* **main:** release 1.0.0 ([9f153bb](https://github.com/Ayup-Creative/php-duration/commit/9f153bb5acdbc29a1ed178ccb578150563f0ef1e))
+* release 1.0.0 ([943b0be](https://github.com/Ayup-Creative/php-duration/commit/943b0be9bb6a265a5afa3ba9ea8386ea3979f2d9))
+
+## [1.0.0](https://github.com/Ayup-Creative/php-duration/compare/v1.0.0...v1.0.0) (2026-04-15)
+
+
+### Miscellaneous Chores
+
 * release 1.0.0 ([943b0be](https://github.com/Ayup-Creative/php-duration/commit/943b0be9bb6a265a5afa3ba9ea8386ea3979f2d9))
 
 ## 1.0.0 (2026-04-15)
