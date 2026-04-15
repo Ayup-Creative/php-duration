@@ -167,6 +167,15 @@ $task = Task::find(1);
 $task->duration_in_seconds; // Returns DurationImmutable instance
 ```
 
+## Development
+
+This package uses [pre-commit](https://pre-commit.com/) to maintain code quality. To set up your local development environment:
+
+1. Install pre-commit: `pip install pre-commit` (or your preferred method)
+2. Install the git hooks: `pre-commit install --hook-type pre-commit --hook-type commit-msg`
+
+The hooks will automatically run PHPUnit and validate your commit messages against [Conventional Commits](https://www.conventionalcommits.org/).
+
 ## Testing
 
 ```bash
