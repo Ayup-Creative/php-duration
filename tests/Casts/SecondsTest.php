@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Tests\Casts;
 
 use AyupCreative\Duration\Casts\DurationCast;

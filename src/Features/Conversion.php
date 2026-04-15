@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Features;
 
 use DateInterval;
@@ -125,10 +127,15 @@ trait Conversion
     /**
      * Serialize the duration to JSON.
      *
-     * @return int
+     * @return array<string, mixed>
      */
-    public function jsonSerialize(): int
+    public function jsonSerialize(): array
     {
-        return $this->totalSeconds;
+        return [
+            'seconds'     => $this->toSeconds(),
+            'human'       => $this->toHuman(),
+            'short_human' => $this->toShortHuman(),
+            'iso8601'     => $this->toCarbonInterval()->spec(),
+        ];
     }
 }

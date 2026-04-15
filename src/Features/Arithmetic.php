@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Features;
 
 use AyupCreative\Duration\DurationInterface;

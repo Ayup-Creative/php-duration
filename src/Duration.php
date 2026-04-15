@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AyupCreative\Duration;
 
-final class Duration implements \JsonSerializable, DurationInterface
+final class Duration implements \JsonSerializable, DurationInterface, Wireable
 {
     use Features\Arithmetic;
     use Features\Builders;
@@ -13,6 +13,7 @@ final class Duration implements \JsonSerializable, DurationInterface
     use Features\Formatting;
     use Features\MagicProperties;
     use Features\TemporalUnits;
+    use Features\Wireable;
 
     protected int $totalSeconds;
 
@@ -89,6 +90,10 @@ final class Duration implements \JsonSerializable, DurationInterface
      */
     public function ceilTo(int $seconds): self
     {
+        if ($seconds === 0) {
+            return $this;
+        }
+
         $seconds = (int)(ceil($this->totalSeconds / $seconds) * $seconds);
 
         $this->totalSeconds = (new self($seconds))->totalSeconds;

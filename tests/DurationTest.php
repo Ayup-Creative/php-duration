@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\Duration;
@@ -67,6 +69,10 @@ class DurationTest extends TestCase
         $duration = Duration::days(1)->add(Duration::hours(5)); // 1d 5h
         $duration->ceilToDays(1);
         $this->assertEquals(172800, $duration->totalSeconds()); // 2d
+
+        $duration = Duration::seconds(65);
+        $duration->ceilTo(0);
+        $this->assertEquals(65, $duration->totalSeconds());
     }
 
     /** @test */
@@ -87,7 +93,7 @@ class DurationTest extends TestCase
         $this->assertEquals(26, $duration->totalHours());
         $this->assertEquals(1563, $duration->totalMinutes());
         $this->assertEquals(93784, $duration->totalSeconds());
-        
+
         $this->assertEquals(0, $duration->totalWeeks());
         $this->assertEquals(0, $duration->totalMonths());
         $this->assertEquals(0, $duration->totalYears());
@@ -108,5 +114,27 @@ class DurationTest extends TestCase
         $this->assertEquals(0, $duration->totalWeeks);
         $this->assertEquals(0, $duration->totalMonths);
         $this->assertEquals(0, $duration->totalYears);
+    }
+
+    /** @test */
+    public function it_is_json_serializable()
+    {
+        $duration = Duration::seconds(3700); // 1h 1m 40s
+        $json = json_encode($duration);
+        $data = json_decode($json, true);
+
+        $this->assertEquals(3700, $data['seconds']);
+        $this->assertEquals('1 hour 1 minute', $data['human']);
+        $this->assertEquals('1h 1m 40s', $data['short_human']);
+        $this->assertEquals('PT3700S', $data['iso8601']);
+    }
+
+    /** @test */
+    public function it_can_be_parsed_from_a_string()
+    {
+        $this->assertEquals(3600, Duration::parse('1h')->totalSeconds());
+        $this->assertEquals(5400, Duration::parse('1h 30m')->totalSeconds());
+        $this->assertEquals(172800, Duration::parse('2 days')->totalSeconds());
+        $this->assertEquals(5400, Duration::parse('PT1H30M')->totalSeconds());
     }
 }

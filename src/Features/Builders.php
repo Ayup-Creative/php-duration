@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Features;
 
 use Carbon\CarbonInterval;
@@ -121,6 +123,19 @@ trait Builders
             ($days * self::SECONDS_PER_DAY);
 
         return new self($seconds);
+    }
+
+    /**
+     * Create a duration from a string.
+     *
+     * Usage: $duration = Duration::parse('1h 30m');
+     *
+     * @param string $string
+     * @return self
+     */
+    public static function parse(string $string): self
+    {
+        return new self((int) CarbonInterval::make($string)->totalSeconds);
     }
 
     /**

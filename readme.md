@@ -39,6 +39,11 @@ $duration = DurationImmutable::hoursAndMinutes(1, 30);
 
 // From Carbon
 $duration = DurationImmutable::fromCarbon(\Carbon\CarbonInterval::hours(2));
+
+// From a string (similar to Carbon::parse)
+$duration = DurationImmutable::parse('1h 30m');
+$duration = DurationImmutable::parse('2 days');
+$duration = DurationImmutable::parse('PT1H30M');
 ```
 
 ### Accessing Units
@@ -112,6 +117,18 @@ $duration->toShortHuman(); // "1d 2h 3m"
 
 // String conversion
 (string) $duration; // "02:03" (hh:mm)
+
+// JSON Serialization
+$json = json_encode($duration);
+/*
+{
+    "seconds": 5400,
+    "human": "1 hour 30 minutes",
+    "short_human": "1h 30m",
+    "formatted": "01:30",
+    "iso8601": "PT1H30M"
+}
+*/
 ```
 
 ### TimeDelta (Negative Durations)
@@ -149,6 +166,15 @@ class Task extends Model
 $task = Task::find(1);
 $task->duration_in_seconds; // Returns DurationImmutable instance
 ```
+
+## Development
+
+This package uses [pre-commit](https://pre-commit.com/) to maintain code quality. To set up your local development environment:
+
+1. Install pre-commit: `pip install pre-commit` (or your preferred method)
+2. Install the git hooks: `pre-commit install --hook-type pre-commit --hook-type commit-msg`
+
+The hooks will automatically run PHPUnit and validate your commit messages against [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## Testing
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\Duration;
@@ -144,7 +146,7 @@ class DurationImmutableTest extends TestCase
         $this->assertEquals(86400, DurationImmutable::days(1)->totalSeconds());
         $this->assertEquals(604800, DurationImmutable::weeks(1)->totalSeconds());
         $this->assertEquals(2629800, DurationImmutable::months(1)->totalSeconds());
-        $this->assertEquals(31557600, DurationImmutable::years(1)->totalSeconds());
+        $this->assertEquals(31536000, DurationImmutable::years(1)->totalSeconds());
 
         $this->assertEquals(3660, DurationImmutable::hoursAndMinutes(1, 1)->totalSeconds());
         $this->assertEquals(90061, DurationImmutable::make(1, 1, 1, 1)->totalSeconds());
@@ -162,7 +164,7 @@ class DurationImmutableTest extends TestCase
 
         // This test might fail due to bug in Conversion trait
         $this->assertEquals(3600 / 2629800, $duration->toMonths(), '', 0.00001);
-        $this->assertEquals(3600 / 31557600, $duration->toYears(), '', 0.00001);
+        $this->assertEquals(3600 / 31536000, $duration->toYears(), '', 0.00001);
     }
 
     /** @test */
@@ -367,7 +369,22 @@ class DurationImmutableTest extends TestCase
     /** @test */
     public function it_is_json_serializable()
     {
-        $duration = DurationImmutable::seconds(100);
-        $this->assertEquals(100, json_decode(json_encode($duration)));
+        $duration = DurationImmutable::seconds(3700); // 1h 1m 40s
+        $json = json_encode($duration);
+        $data = json_decode($json, true);
+
+        $this->assertEquals(3700, $data['seconds']);
+        $this->assertEquals('1 hour 1 minute', $data['human']);
+        $this->assertEquals('1h 1m 40s', $data['short_human']);
+        $this->assertEquals('PT3700S', $data['iso8601']);
+    }
+
+    /** @test */
+    public function it_can_be_parsed_from_a_string()
+    {
+        $this->assertEquals(3600, DurationImmutable::parse('1h')->totalSeconds());
+        $this->assertEquals(5400, DurationImmutable::parse('1h 30m')->totalSeconds());
+        $this->assertEquals(172800, DurationImmutable::parse('2 days')->totalSeconds());
+        $this->assertEquals(5400, DurationImmutable::parse('PT1H30M')->totalSeconds());
     }
 }

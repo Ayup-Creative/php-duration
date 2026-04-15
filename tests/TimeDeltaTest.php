@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AyupCreative\Duration\Tests;
 
 use AyupCreative\Duration\DurationImmutable;
