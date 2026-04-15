@@ -1,6 +1,6 @@
 # Duration
 
-[![PHP Tests](https://github.com/Ayup-Creative/php-duration/actions/workflows/phpunit.yml/badge.svg)](https://github.com/Ayup-Creative/php-duration/actions/workflows/phpunit.yml)
+[![PHP Tests](https://github.com/Ayup-Creative/php-duration/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Ayup-Creative/php-duration/actions/workflows/ci-cd.yml)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
 [![Total Downloads](https://img.shields.io/packagist/dt/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
 [![License](https://img.shields.io/packagist/l/ayup-creative/duration.svg?style=flat-square)](https://packagist.org/packages/ayup-creative/duration)
